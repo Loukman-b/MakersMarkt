@@ -1,2 +1,27 @@
+created:
+    - database/factories/ItemTypeFactory.php
+    - database/factories/ItemFactory.php
+    - database/factories/ProductImageFactory.php
+    - database/factories/OrderFactory.php
+    - database/factories/ReviewFactory.php
+    - database/factories/ModerationFlagFactory.php
+    - database/migrations/2026_03_24_134738_create_item_types_table.php
+    - database/migrations/2026_03_24_134739_create_items_table.php
+    - database/migrations/2026_03_24_134740_create_product_images_table.php
+    - database/migrations/2026_03_24_134741_create_orders_table.php
+    - database/migrations/2026_03_24_134742_create_reviews_table.php
+    - database/migrations/2026_03_24_134743_create_moderation_flags_table.php
+    - app/Models/ItemType.php
+    - app/Models/Item.php
+    - app/Models/ProductImage.php
+    - app/Models/Order.php
+    - app/Models/Review.php
+    - app/Models/ModerationFlag.php
 models:
     User: { name: string, email: string, email_verified_at: 'datetime nullable', password: string, remember_token: 'string nullable' }
+    ItemType: { title: string, relationships: { hasMany: Item } }
+    Item: { user_id: 'id foreign', item_type_id: 'id foreign', title: string, description: text, price: 'decimal:10,2', material: 'string nullable', production_time: 'integer nullable', relationships: { belongsTo: 'User, ItemType', hasMany: 'Order, Review, ModerationFlag, ProductImage' } }
+    ProductImage: { item_id: 'id foreign', image_path: string, relationships: { belongsTo: Item } }
+    Order: { user_id: 'id foreign', item_id: 'id foreign', status: string, relationships: { belongsTo: 'User, Item' } }
+    Review: { user_id: 'id foreign', item_id: 'id foreign', rating: integer, comment: 'text nullable', relationships: { belongsTo: 'User, Item' } }
+    ModerationFlag: { item_id: 'id foreign', user_id: 'id foreign', reason: text, is_resolved: 'boolean default:false', relationships: { belongsTo: 'User, Item' } }
