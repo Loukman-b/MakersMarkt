@@ -1,0 +1,77 @@
+:\laragon\www\Urenregistratie
+
+Filament instructies:
+Blueprint
+composer require -W --dev laravel-shift/blueprint
+php artisan blueprint:new
+/draft.yaml
+ 
+Php artisan blueprint:build
+Blueprint maakt:
+-	Migrations
+-	Models
+-	Factories
+Php artisan blueprint:erase om terug te draaien en te debuggen.
+Omdat we ook willen opslaan hoeveel er van een product besteld wordt, en hoe duur een product was op moment van bestellen (de prijs kan namelijk later veranderen) moeten we deze gegevens handmatig aan de koppeltabel toevoegen.
+ 
+Php artisan blueprint:stubs > Genereer configs om blueprint’s gedrag aan te passen. /stubs/blueprint
+Filament Installeren
+composer require filament/filament:"^4.0"
+php artisan filament:install --panels
+/app/Providers/Filament/AdminPanelProvider.php
+ 
+Maak een migration aan voor de users tabel en voeg de “is_admin” kolom toe.
+ 
+
+Pas de User model aan, zodat alleen admins toegelaten worden in het filament paneel.
+ 
+ 
+php artisan make:filament-user
+Vul gegevens in
+Pas de “is_admin” waarde aan in de database
+Log in via “/admin”
+Kleuren aanpassen in de AppPanelProvider
+ 
+Genereer een resource
+ 
+Refresh de browser, de hele CRUD rondom products werkt nu al, zelfs dingen als foreign values en image uploading!!!
+Er zijn nog wel details die missen, dat moeten we zelf toevoegen.
+ 
+De back-end van deze views zijn te vinden in app/Filament/Resources/[Model]
+-	[Model]Resource.php houdt de hele resource bij elkaar
+-	/Pages bevat alle component classes voor de verschillende views
+-	/Schemas bevat de opzet van de create en edit form
+-	/Tables bevat de opzet van de index view
+Maak nu ook de resource voor de Category en Order models.
+Orders zijn een beetje speciaal want die willen we niet kunnen aanmaken van het adminpaneel. We moeten de create optie dus even disabelen door 2 aanpassingen aan te doen.
+/app/Filament/Resources/Orders/OrderResource
+ 
+/app/Filament/Resources/Orders/Pages/ListOrders
+ 
+Nu gaan we de categories toevoegen aan de product form. Ga naar /app/Filament/Resources/Products/Schemas/ProductForm.php. Hier zien we hoe de form van de create en edit zijn opgemaakt.
+Filament heeft allerlei ingebouwde Form Components (zie de use-statements) die we kunnen gebruiken om het formulier aan te vullen. De class bepaalt het form type, en de make() functie maakt het veld aan, met de naam van het form veld als parameter.
+Vervolgens kunnen er nog modifiers aan toegevoegd worden zoals ->required(), ->numeric() of ->image() om verdere eigenschappen van deze velden aan te geven.
+Voeg het volgende toe aan de ProductForm.php
+ 
+->relationship() geeft aan om welke foreign table het gaat
+-> multiple() zorgt ervoor dat we een form veld krijgen waar we meerdere waardes kunnen selecteren.
+->preload() laadt alvast alle mogelijke opties in. Dit kan handig zijn als de desbetreffende model/databasetabel niet zo veel data bevat. Dit is in Category het geval.
+->searchable() maakt van het form veld een zoekveld zodat je categories kunt zoeken.
+Sla op, en maak een Category aan op de site. Maak daarna een nieuwe Product aan, of pas er een aan. Kijk maar eens hoe het Categories veld nu werkt.
+Nu gaan we ook ervoor zorgen dat de categories zichtbaar zijn in de list-view van Products. Ga naar /app/Filament/Resources/Products/Tables/ProductsTable.php en voeg het volgende toe.
+ 
+Ook dit werkt redelijk hetzelfde als de Form fields, maar met andere classes.
+Categories.name: omdat we hier niet een waarde laten zien van iets in de Product model, moeten we aangeven welke tabel en waarde we hier willen tonen. In dit geval de tabel “categories” en de kolom “name”.
+->badge() weergeeft de resultaten van deze kolom als een badge.
+->searchable() zorgt ervoor dat we ook een category naam in de zoekbalk in kunnen vullen om die in de zoekresultaten terug te zien.
+Laten we een widget toevoegen aan de dashboard zodat we kunnen zien hoeveel producten en orders er in het systeem staan
+Php artisan make:filament-widget StatsOverview
+-	Stats overview
+-	Yes
+-	No
+Open vervolgens /app/Filament/Widgets/StatsOverview.php en pas het volgende aan:
+
+ 
+Open nu het dashboard. Zo kun je gemakkelijk gegevens op het dashboard tonen. Je maakt gewoon een nieuwe Stat aan, geeft het een naam, en als tweede parameter doe je een Eloquent query uitvoeren. Het resultaat daarvan wordt op het dashboard getoond.
+
+

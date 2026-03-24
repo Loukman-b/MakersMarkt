@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Product;
 
 class User extends Authenticatable
 {
@@ -23,7 +24,7 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
-        'role',
+        'rol',
         'credit',
         'verification',
     ];
@@ -55,4 +56,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(Product::class, 'user_id');
     }
+    public function isAdmin(): bool  { return $this->role === 'admin'; }
+    public function isSeller(): bool { return $this->role === 'seller'; }
 }
