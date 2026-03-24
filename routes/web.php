@@ -17,4 +17,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
+Route::middleware(['auth', 'role:seller,admin'])->group(function () {
+    Route::get('/verkoper/dashboard', [SellerController::class, 'index']);
+});
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'index']);
+});
+
 require __DIR__.'/auth.php';
