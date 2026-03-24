@@ -39,25 +39,8 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <div>
-            <label for="is_seller" class="flex items-center gap-2 cursor-pointer">
-                <input 
-                    type="checkbox" 
-                    id="is_seller" 
-                    name="is_seller" 
-                    value="1"
-                    {{ old('is_seller') ? 'checked' : '' }}
-                    class="rounded border-gray-300"
-                />
-                <span class="text-sm text-gray-700">Ik wil verkoper worden</span>
-            </label>
-            <p class="text-xs text-gray-500 mt-1">
-                Als verkoper kun je producten aanbieden op het platform.
-            </p>
-        </div>
-
         <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
+            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
                 {{ __('Already registered?') }}
             </a>
 
