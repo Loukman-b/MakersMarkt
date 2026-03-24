@@ -40,13 +40,13 @@
         </div>
 
         <div>
-            <label for="is_seller" class="flex items-center gap-2 cursor-pointer">
+            <label for="rol" class="flex items-center gap-2 cursor-pointer">
                 <input 
                     type="checkbox" 
-                    id="is_seller" 
-                    name="is_seller" 
+                    id="rol" 
+                    name="rol" 
                     value="1"
-                    {{ old('is_seller') ? 'checked' : '' }}
+                    {{ old('rol') ? 'checked' : '' }}
                     class="rounded border-gray-300"
                 />
                 <span class="text-sm text-gray-700">Ik wil verkoper worden</span>
