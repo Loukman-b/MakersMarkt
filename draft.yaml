@@ -1,0 +1,47 @@
+models:
+
+    ItemType:
+    title: string
+    relationships:
+      hasMany: Item
+
+    Item:
+      user_id: id foreign
+      item_type_id: id foreign
+      title: string
+      description: text
+      price: decimal:10,2
+      material: string nullable
+      production_time: integer nullable
+      relationships:
+        belongsTo: User, ItemType
+        hasMany: Order, Review, ModerationFlag, ProductImage
+
+    ProductImage:
+      item_id: id foreign
+      image_path: string
+      relationships:
+        belongsTo: Item
+
+    Order:
+      user_id: id foreign
+      item_id: id foreign
+      status: string
+      relationships:
+        belongsTo: User, Item
+
+    Review:
+      user_id: id foreign
+      item_id: id foreign
+      rating: integer
+      comment: text nullable
+      relationships:
+        belongsTo: User, Item
+
+    ModerationFlag:
+      item_id: id foreign
+      user_id: id foreign
+      reason: text
+      is_resolved: boolean default:false
+      relationships:
+        belongsTo: User, Item
