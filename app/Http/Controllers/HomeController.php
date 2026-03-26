@@ -12,42 +12,29 @@ class HomeController extends Controller
 
         // Hardcoded producten
         $products = [
-            [
-                'title' => 'Handgemaakte Kaars',
-                'price' => 29.99,
-                'image' => '/img/Handgemaakte-producten.jpg'
-            ],
-            [
-                'title' => 'Geurkaars',
-                'price' => 19.99,
-                'image' => '/img/Handgemaakte-producten.jpg'
-            ],
-            [
-                'title' => 'Decoratieve Kaars',
-                'price' => 24.99,
-                'image' => '/img/Handgemaakte-producten.jpg'
-            ],
-            [
-                'title' => 'Grote Kaars',
-                'price' => 39.99,
-                'image' => '/img/Handgemaakte-producten.jpg'
-            ],
-            [
-                'title' => 'Mini Kaars',
-                'price' => 14.99,
-                'image' => '/img/Handgemaakte-producten.jpg'
-            ],
+            ['title' => 'Handgemaakte Kaars', 'price' => 29.99, 'image' => '/img/Handgemaakte-producten.jpg'],
+            ['title' => 'Geurkaars', 'price' => 19.99, 'image' => '/img/Handgemaakte-producten.jpg'],
+            ['title' => 'Decoratieve Kaars', 'price' => 24.99, 'image' => '/img/Handgemaakte-producten.jpg'],
+            ['title' => 'Grote Kaars', 'price' => 39.99, 'image' => '/img/Handgemaakte-producten.jpg'],
+            ['title' => 'Mini Kaars', 'price' => 14.99, 'image' => '/img/Handgemaakte-producten.jpg'],
         ];
+
+        // Voeg index toe voor routing
+        $productsWithIndex = [];
+        foreach ($products as $index => $product) {
+            $product['index'] = $index;
+            $productsWithIndex[] = $product;
+        }
 
         // Filter op zoekterm
         if ($query) {
-            $products = array_filter($products, function($product) use ($query) {
+            $productsWithIndex = array_filter($productsWithIndex, function($product) use ($query) {
                 return stripos($product['title'], $query) !== false;
             });
         }
 
         return view('home', [
-            'items' => $products,
+            'items' => $productsWithIndex,
             'query' => $query
         ]);
     }

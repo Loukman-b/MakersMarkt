@@ -8,7 +8,6 @@
 </head>
 <body class="bg-white">
 
-<!-- Header -->
 @include('partials.header')
 
 <!-- HERO -->
@@ -16,9 +15,9 @@
     <div class="absolute inset-0 bg-black bg-opacity-50"></div>
     <div class="relative max-w-6xl mx-auto h-full flex items-center px-8">
         <div class="text-left text-white max-w-lg">
-            <h2 class="text-5xl font-bold mb-4 animate-fadeIn">Welkom op MakersMarkt</h2>
-            <p class="text-xl mb-8 animate-fadeIn delay-200">Ontdek unieke, handgemaakte producten van talentvolle makers</p>
-            <a href="#products" class="bg-white text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition transform hover:scale-105 animate-fadeIn delay-400">Bekijk Producten</a>
+            <h2 class="text-5xl font-bold mb-4">Welkom op MakersMarkt</h2>
+            <p class="text-xl mb-8">Ontdek unieke, handgemaakte producten van talentvolle makers</p>
+            <a href="#products" class="bg-white text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200">Bekijk Producten</a>
         </div>
     </div>
 </section>
@@ -33,24 +32,24 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         @forelse($items as $item)
-        <div class="bg-white shadow-lg rounded-xl overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-2xl flex flex-col">
-            <img src="{{ $item['image'] }}" alt="{{ $item['title'] }}" class="w-full h-56 object-cover transition-transform duration-300 hover:scale-110">
-            <div class="p-5 flex-1 flex flex-col justify-between">
-                <div>
-                    <h4 class="text-lg font-semibold text-gray-800 mb-2">{{ $item['title'] }}</h4>
-                    <p class="text-gray-600 font-medium mb-4">€{{ number_format($item['price'], 2) }}</p>
+            <div class="bg-white shadow-lg rounded-xl overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-2xl flex flex-col">
+                <img src="{{ $item['image'] }}" alt="{{ $item['title'] }}" class="w-full h-56 object-cover transition-transform duration-300 hover:scale-110">
+                <div class="p-5 flex-1 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2">{{ $item['title'] }}</h4>
+                        <p class="text-gray-600 font-medium mb-4">€{{ number_format($item['price'], 2) }}</p>
+                    </div>
+                    <a href="{{ route('product.show', $item['index']) }}" class="mt-auto bg-gray-800 text-white w-full py-2 rounded-lg hover:bg-gray-600 text-center">
+                        Bekijk Product
+                    </a>
                 </div>
-                <button class="mt-auto bg-gray-800 text-white w-full py-2 rounded-lg hover:bg-gray-600 transform hover:scale-105 transition duration-300">Bekijk Product</button>
             </div>
-        </div>
         @empty
-        <p class="col-span-full text-center text-gray-500">Geen producten gevonden voor "{{ $query }}"</p>
+            <p class="col-span-full text-center text-gray-500">Geen producten gevonden voor "{{ $query }}"</p>
         @endforelse
     </div>
 </section>
 
-<!-- Footer -->
 @include('partials.footer')
-
 </body>
 </html>
