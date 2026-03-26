@@ -57,4 +57,13 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+    public function updateRole(Request $request): RedirectResponse
+    {
+        $isSeller = $request->has('rol');
+        
+        $request->user()->update([
+            'rol' => $isSeller ? 'seller' : null,
+        ]);
+        return redirect()->route('profile.edit')->with('status', 'rol-updated');
+    }
 }
