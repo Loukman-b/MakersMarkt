@@ -106,11 +106,65 @@
             </div>
         </div>
 
-        <!-- LOGIN -->
-        <a href="{{ route('login') }}"
-           class="bg-gray-800 text-white px-5 py-2 rounded-lg text-sm hover:bg-gray-600 transition">
-           Inloggen
-        </a>
+        @auth
+            <!-- CREDIT -->
+            <div class="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-sm font-semibold border border-yellow-300">
+                Credits: {{ auth()->user()->credit }}
+            </div>
+
+            <!-- ACCOUNT MENU -->
+            <div class="relative group">
+                <button type="button"
+                        class="bg-white border border-gray-300 px-4 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition">
+                    {{ auth()->user()->name ?? auth()->user()->email }}
+                </button>
+
+                <div class="absolute right-0 mt-3 w-56 bg-white shadow-xl rounded-xl py-2 opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300 z-50 border border-gray-200">
+                    <div class="px-4 py-3 border-b border-gray-100">
+                        <p class="text-sm font-semibold text-gray-800">{{ auth()->user()->name ?? 'Gebruiker' }}</p>
+                        <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
+                    </div>
+
+                    <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                        Dashboard
+                    </a>
+
+                    <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                        Profiel bekijken
+                    </a>
+
+                    @if((auth()->user()->role ?? null) === 'seller')
+                        @if(Route::has('items.create'))
+                            <a href="{{ route('items.create') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                                Item verkopen
+                            </a>
+                        @else
+                            <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                                Verkopen
+                            </a>
+                        @endif
+                    @endif
+
+                    <div class="border-t border-gray-100 mt-2 pt-2 px-2">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                    class="w-full text-left px-2 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition">
+                                Uitloggen
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endauth
+
+        @guest
+            <!-- LOGIN -->
+            <a href="{{ route('login') }}"
+               class="bg-gray-800 text-white px-5 py-2 rounded-lg text-sm hover:bg-gray-600 transition">
+               Inloggen
+            </a>
+        @endguest
 
     </div>
 </nav>
