@@ -2,40 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Item;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $query = $request->input('q');
+        $items = Item::latest()->get();
 
-        // Hardcoded producten
-        $products = [
-            ['title' => 'Handgemaakte Kaars', 'price' => 29.99, 'image' => '/img/Handgemaakte-producten.jpg'],
-            ['title' => 'Geurkaars', 'price' => 19.99, 'image' => '/img/Handgemaakte-producten.jpg'],
-            ['title' => 'Decoratieve Kaars', 'price' => 24.99, 'image' => '/img/Handgemaakte-producten.jpg'],
-            ['title' => 'Grote Kaars', 'price' => 39.99, 'image' => '/img/Handgemaakte-producten.jpg'],
-            ['title' => 'Mini Kaars', 'price' => 14.99, 'image' => '/img/Handgemaakte-producten.jpg'],
-        ];
-
-        // Voeg index toe voor routing
-        $productsWithIndex = [];
-        foreach ($products as $index => $product) {
-            $product['index'] = $index;
-            $productsWithIndex[] = $product;
-        }
-
-        // Filter op zoekterm
-        if ($query) {
-            $productsWithIndex = array_filter($productsWithIndex, function($product) use ($query) {
-                return stripos($product['title'], $query) !== false;
-            });
-        }
-
-        return view('home', [
-            'items' => $productsWithIndex,
-            'query' => $query
-        ]);
+        return view('home', compact('items'));
     }
 }
