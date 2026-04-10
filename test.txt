@@ -74,4 +74,7 @@ Open vervolgens /app/Filament/Widgets/StatsOverview.php en pas het volgende aan:
  
 Open nu het dashboard. Zo kun je gemakkelijk gegevens op het dashboard tonen. Je maakt gewoon een nieuwe Stat aan, geeft het een naam, en als tweede parameter doe je een Eloquent query uitvoeren. Het resultaat daarvan wordt op het dashboard getoond.
 
-
+composer require laravel/breeze --dev
+php artisan breeze:install
+npm install && npm run dev
+php artisan migrate
