@@ -78,3 +78,174 @@ composer require laravel/breeze --dev
 php artisan breeze:install
 npm install && npm run dev
 php artisan migrate
+
+// app/Models/User.php
+
+#[Fillable(['name', 'email', 'password', 'birthdate', 'address', 'special_case', 'subscription_id', 'role'])]
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
+
+// Voeg deze relatie toe:
+public function subscription()
+{
+    return $this->belongsTo(Subscription::class);
+}
+
+// database/migrations/..._create_subscriptions_table.php
+Schema::create('subscriptions', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->decimal('price', 8, 2);
+    $table->integer('credits');
+    $table->timestamps();
+});
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+// app/Actions/Fortify/CreateNewUser.php
+<?php
+
+namespace App\Actions\Fortify;
+
+use App\Concerns\PasswordValidationRules;
+use App\Concerns\ProfileValidationRules;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Laravel\Fortify\Contracts\CreatesNewUsers;
+
+class CreateNewUser implements CreatesNewUsers
+{
+    use PasswordValidationRules, ProfileValidationRules;
+
+    public function create(array $input): User
+    {
+        Validator::make($input, [
+            ...$this->profileRules(),
+            'password'        => $this->passwordRules(),
+            'subscription_id' => ['required', 'exists:subscriptions,id'],
+            'birthdate'       => ['required', 'date'],
+            'address'         => ['required', 'string', 'max:255'],
+            'special_case'    => ['nullable', 'string'],
+        ])->validate();
+
+        return User::create([
+            'name'            => $input['name'],
+            'email'           => $input['email'],
+            'password'        => Hash::make($input['password']),
+            'subscription_id' => $input['subscription_id'],
+            'birthdate'       => $input['birthdate'],
+            'address'         => $input['address'],
+            'special_case'    => $input['special_case'] ?? null,
+        ]);
+    }
+}
+
+// app/Models/SubscriptionActivation.php
+protected $fillable = [
+    'user_id',
+    'status',
+];
+
+// Status helpers
+public function isPending(): bool   { return $this->status === 'pending'; }
+public function isActivated(): bool { return $this->status === 'activated'; }
+public function isDeclined(): bool  { return $this->status === 'declined'; }
+
+// app/Models/User.php
+
+// Bestaande relatie is er al, voeg helpers toe:
+public function subscriptionActivation(): HasOne
+{
+    return $this->hasOne(SubscriptionActivation::class)->latestOfMany();
+}
+
+public function subscription(): BelongsTo
+{
+    return $this->belongsTo(Subscription::class);
+}
+
+public function isActive(): bool
+{
+    return $this->subscriptionActivation?->isActivated() ?? false;
+}
+
+public function isPending(): bool
+{
+    return $this->subscriptionActivation?->isPending() ?? false;
+}
+// app/Actions/Fortify/CreateNewUser.php
+public function create(array $input): User
+{
+    Validator::make($input, [
+        ...$this->profileRules(),
+        'password'        => $this->passwordRules(),
+        'birthdate'       => ['required', 'date'],
+        'address'         => ['required', 'string', 'max:255'],
+        'special_case'    => ['nullable', 'string'],
+        'subscription_id' => ['required', 'exists:subscriptions,id'],
+    ])->validate();
+
+    $user = User::create([
+        'name'            => $input['name'],
+        'email'           => $input['email'],
+        'password'        => Hash::make($input['password']),
+        'birthdate'       => $input['birthdate'],
+        'address'         => $input['address'],
+        'special_case'    => $input['special_case'] ?? null,
+        'subscription_id' => $input['subscription_id'],
+        'role'            => 'user',
+    ]);
+
+    // Maak direct een pending activatie aan
+    SubscriptionActivation::create([
+        'user_id' => $user->id,
+        'status'  => 'pending',
+    ]);
+
+    return $user;
+}
+
+// app/Http/Middleware/EnsureUserIsActive.php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class EnsureUserIsActive
+{
+    public function handle(Request $request, Closure $next)
+    {
+        $user = Auth::user();
+
+        if (!$user) return $next($request);
+
+        // Admins en trainers altijd doorlaten
+        if (in_array($user->role, ['admin', 'trainer'])) {
+            return $next($request);
+        }
+
+        // Deelnemers moeten een actieve activatie hebben
+        if (!$user->isActive()) {
+            Auth::logout();
+            $message = $user->isPending()
+                ? 'Je account wacht op goedkeuring van een admin.'
+                : 'Je account is afgewezen. Neem contact op voor meer informatie.';
+
+            return redirect()->route('login')->withErrors(['email' => $message]);
+        }
+
+        return $next($request);
+    }
+}
+
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->alias([
+        'active' => \App\Http\Middleware\EnsureUserIsActive::class,
+    ]);
+})
