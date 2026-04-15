@@ -80,55 +80,12 @@ npm install && npm run dev
 php artisan migrate
 
 
-            'role'            => null, // geen toegang tot goedkeuring
-        ]);
-
-        // Maak pending activatie aan
-        SubscriptionActivation::create([
-            'user_id' => $user->id,
-            'status'  => 'pending',
-        ]);
-// app/Http/Middleware/EnsureUserIsActive.php
-<?php
-
-namespace App\Http\Middleware;
-
-use Closure;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-
-class EnsureUserIsActive
-{
-    public function handle(Request $request, Closure $next)
-    {
-        $user = Auth::user();
-
-        if (!$user) return $next($request);
-
-        // Admins en trainers hebben altijd toegang
-        if (in_array($user->role, ['admin', 'trainer'])) {
-            return $next($request);
-        }
-
-        // role = null betekent nog niet goedgekeurd
-        if (is_null($user->role)) {
-            Auth::logout();
-
-            $activation = $user->subscriptionActivations()->latest()->first();
-            $message = match($activation?->status) {
-                'pending'  => 'Je account wacht op goedkeuring van een admin.',
-                'declined' => 'Je account is afgewezen. Neem contact op voor meer informatie.',
-                default    => 'Je account is nog niet actief.',
-            };
-
-            return redirect()->route('login')->withErrors(['email' => $message]);
-        }
-
-        return $next($request);
-    }
-}
-->withMiddleware(function (Middleware $middleware) {
-    $middleware->alias([
-        'active' => \App\Http\Middleware\EnsureUserIsActive::class,
-    ]);
-})
+Tables\Columns\TextColumn::make('subscription.name')
+    ->label('Abonnement')
+    ->searchable(),
+Tables\Columns\TextColumn::make('subscriptionActivation.status')
+    ->label('Status')
+    ->searchable(),
+Tables\Columns\TextColumn::make('lessons.name')
+    ->label('Lessen')
+    ->searchable(),
